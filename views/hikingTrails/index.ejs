@@ -1,21 +1,24 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Hiking Trails</title>
-</head>
-<body>
+<% layout('layouts/boilerplate') %>
 <h1>All Hiking Trails</h1>
 <div>
     <a href="/hikingTrails/new">Add Campground</a>
 </div>
-<ul>
-    <% for (let hikingTrail of hikingTrails) { %>
-        <li><a href="/hikingTrails/<%= hikingTrail._id %>"><%= hikingTrail.title %></a></li>
-    <% } %>
-</ul>
-</body>
-</html>
+<% for (let hikingTrail of hikingTrails) { %>
+<div class="card mb-3">
+    <div class="row">
+        <div class="col-md-4">
+            <img src="<%= hikingTrail.image %>" alt="" class="img-fluid">
+        </div>
+        <div class="col-md-8">
+            <div class="card-body">
+                <h5 class="card-title"><%= hikingTrail.title %></h5>
+                <p class="card-text"><%= hikingTrail.description %></p>
+                <p class="card-text">
+                    <small class="text-body-secondary"><%= hikingTrail.location %></small>
+                </p>
+                <a href="/hikingTrails/<%= hikingTrail._id %>" class="btn btn-primary">View <%= hikingTrail.title %></a>
+            </div>
+        </div>
+    </div>
+</div>
+<% } %>

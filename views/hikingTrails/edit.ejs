@@ -3,35 +3,51 @@
 <div class="row">
     <h1 class="text-center">Edit Hiking Trails</h1>
     <div class="col-6 offset-3">
-        <form action="/hikingTrails/<%= hikingTrail._id %>?_method=PUT" method="POST">
+        <form action="/hikingTrails/<%= hikingTrail._id %>?_method=PUT" method="POST" class="validated-form" novalidate>
             <div class="mb-3">
                 <label class="form-label" for="title">Title</label>
                 <input class="form-control" type="text" id="title" name="hikingTrail[title]"
-                       value="<%= hikingTrail.title %>">
+                       value="<%= hikingTrail.title %>" required>
+                <div class="valid-feedback">
+                    Looks good!
+                </div>
             </div>
             <div class="mb-3">
                 <label class="form-label" for="location">Location</label>
                 <input class="form-control" type="text" id="location" name="hikingTrail[location]"
-                       value="<%= hikingTrail.location %>">
+                       value="<%= hikingTrail.location %>" required>
+                <div class="valid-feedback">
+                    Looks good!
+                </div>
             </div>
             <div class="mb-3">
                 <label class="form-label" for="image">Image URL</label>
                 <input class="form-control" type="text" id="image" name="hikingTrail[image]"
-                       value="<%= hikingTrail.image %>">
+                       value="<%= hikingTrail.image %>" required>
+                <div class="valid-feedback">
+                    Looks good!
+                </div>
             </div>
             <div class="mb-3">
                 <label class="form-label" for="price">Hiking Trail Price</label>
                 <div class="input-group">
                     <span class="input-group-text" id="price-label">&#8377;</span>
                     <input type="text" class="form-control" id="price" placeholder="0" aria-label="price-label"
-                           aria-describedby="price-label" name="hikingTrail[price]" value="<%= hikingTrail.price %>">
+                           aria-describedby="price-label" name="hikingTrail[price]" value="<%= hikingTrail.price %>"
+                           required>
+                    <div class="valid-feedback">
+                        Looks good!
+                    </div>
                 </div>
             </div>
             <div class="mb-3">
                 <label class="form-label" for="description">Description</label>
-                <textarea class="form-control" id="description" name="hikingTrail[description]">
+                <textarea class="form-control" id="description" name="hikingTrail[description]" required>
                     <%= hikingTrail.description %>
                 </textarea>
+                <div class="valid-feedback">
+                    Looks good!
+                </div>
             </div>
             <div class="mb-3">
                 <button class="btn btn-info">Update Hiking Trail</button>

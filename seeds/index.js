@@ -19,6 +19,7 @@ const seedDB = async () => {
         const random493 = Math.floor(Math.random() * 493);
         const price = Math.floor(Math.random() * 300) + 20;
         const trail = new HikingTrail({
+            author: '66a5c06430a85f7f49f68298',
             location: `${cities[random493].city}, ${cities[random493].state}`,
             title: `${sample(descriptors)} ${sample(places)}`,
             image: `https://picsum.photos/400?random=${Math.random()}`,

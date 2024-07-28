@@ -2,12 +2,17 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const ejsMate = require('ejs-mate');
-const Joi = require('joi');
-const {hikingTrailSchema} = require('./schemas');
-const catchAsync = require('./utils/catchAsync');
+const session = require('express-session');
+const flash = require('connect-flash');
 const ExpressError = require('./utils/ExpressError');
 const methodOverride = require('method-override');
-const HikingTrail = require('./models/hikingTrail');
+const passport = require('passport');
+const LocalStrategy = require('passport-local');
+const User = require('./models/user');
+
+const userRoutes = require('./routes/users');
+const hikingTrailRoutes = require('./routes/hikingTrails');
+const reviewRoutes = require('./routes/reviews');
 
 mongoose.connect('mongodb://localhost:27017/trailTrove');
 
@@ -25,61 +30,42 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.use(express.urlencoded({extended: true}));
 app.use(methodOverride('_method'))
+app.use(express.static(path.join(__dirname, 'public')))
 
-const validateHikingTrail = (req, res, next) => {
-
-    const {error} = hikingTrailSchema.validate(req.body);
-    if (error) {
-        const msg = error.details.map(ele => ele.message).join(', ');
-        throw new ExpressError(msg, 400);
-    } else {
-        next();
+const sessionConfig = {
+    secret: 'thisshouldbeabettersecret',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        httpOnly: true,
+        expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
+        maxAge: 1000 * 60 * 60 * 24 * 7,
     }
 }
+app.use(session(sessionConfig));
+app.use(flash());
+
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+app.use((req, res, next) => {
+    res.locals.currentUser = req.user;
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+    next();
+})
+
+app.use('/', userRoutes);
+app.use('/hikingTrails', hikingTrailRoutes);
+app.use('/hikingTrails/:id/reviews/', reviewRoutes);
 
 app.get('/', (req, res) => {
     res.render('home');
 });
-
-app.get('/hikingTrails', async (req, res) => {
-    const hikingTrails = await HikingTrail.find({});
-    res.render('hikingTrails/index', {hikingTrails});
-});
-
-app.get('/hikingTrails/new', (req, res) => {
-    res.render('hikingTrails/new')
-})
-
-app.post('/hikingTrails', validateHikingTrail, catchAsync(async (req, res, next) => {
-    // if (!req.body.hikingTrail) throw new ExpressError('Invalid Hiking Trail Data', 400);
-
-    const hikingTrail = new HikingTrail(req.body.hikingTrail);
-    await hikingTrail.save();
-    res.redirect(`/hikingTrails/${hikingTrail._id}`);
-}));
-
-app.get('/hikingTrails/:id', catchAsync(async (req, res) => {
-    const hikingTrail = await HikingTrail.findById(req.params.id);
-    res.render('hikingTrails/show', {hikingTrail});
-}));
-
-app.get('/hikingTrails/:id/edit', catchAsync(async (req, res) => {
-    const hikingTrail = await HikingTrail.findById(req.params.id);
-    res.render('hikingTrails/edit', {hikingTrail});
-
-}));
-
-app.put('/hikingTrails/:id', validateHikingTrail, catchAsync(async (req, res) => {
-    const {id} = req.params;
-    const hikingTrail = await HikingTrail.findByIdAndUpdate(id, {...req.body.hikingTrail});
-    res.redirect(`/hikingTrails/${hikingTrail._id}`);
-}));
-
-app.delete('/hikingTrails/:id', catchAsync(async (req, res) => {
-    const {id} = req.params;
-    await HikingTrail.findByIdAndDelete(id);
-    res.redirect('/hikingTrails');
-}));
 
 app.all('*', (req, res, next) => {
     next(new ExpressError('Page not found', 404));

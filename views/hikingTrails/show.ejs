@@ -1,7 +1,7 @@
 <% layout('layouts/boilerplate') %>
 
 <div class="row">
-    <div class="col-6 offset-3">
+    <div class="col-6">
         <div class="card mb-3">
             <img src="<%= hikingTrail.image %>" class="card-img-top" alt="...">
             <div class="card-body">
@@ -10,17 +10,55 @@
             </div>
             <ul class="list-group list-group-flush">
                 <li class="list-group-item text-body-secondary"><%= hikingTrail.location %></li>
+                <li class="list-group-item">Submitted by <%= hikingTrail.author.username %></li>
                 <li class="list-group-item">&#8377;<%= hikingTrail.price %>/person</li>
             </ul>
-            <div class="card-body">
-                <a class="card-link btn btn-warning" href="/hikingTrails/<%= hikingTrail._id %>/edit">Edit</a>
-                <form class="d-inline" action="/hikingTrails/<%= hikingTrail._id %>?_method=DELETE" method="POST">
-                    <button class="btn btn-info">Delete</button>
-                </form>
-            </div>
+            <% if (currentUser && hikingTrail.author.equals(currentUser)){ %>
+                <div class="card-body">
+                    <a class="card-link btn btn-info" href="/hikingTrails/<%= hikingTrail._id %>/edit">Edit</a>
+                    <form class="d-inline" action="/hikingTrails/<%= hikingTrail._id %>?_method=DELETE" method="POST">
+                        <button class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            <% } %>
             <div class="card-footer text-body-secondary">
                 2 days ago
             </div>
         </div>
+    </div>
+    <div class="col-6">
+        <% if (currentUser) { %>
+            <h2>Leave a review</h2>
+            <form action="/hikingTrails/<%= hikingTrail._id %>/reviews" method="POST" class="mb-3 validated-form"
+                  novalidate>
+                <div class="mb-3">
+                    <label class="form-label" for="rating">Rating</label>
+                    <input class="form-range" type="range" min="1" max="5" name="review[rating]" id="rating">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="body">Review</label>
+                    <textarea class="form-control" name="review[body]" id="body" cols="30" rows="3" required></textarea>
+                    <div class="valid-feedback">
+                        Looks good!
+                    </div>
+                </div>
+                <button class="btn btn-success">Submit</button>
+            </form>
+        <% } %>
+        <% for(let review of hikingTrail.reviews) { %>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Rating: <%= review.rating %></h5>
+                    <h6 class="card-subtitle mb-2 text-body-secondary">By <%= review.author.username %></h6>
+                    <p class="card-text">Review: <%= review.body %></p>
+                    <% if (currentUser && review.author.equals(currentUser)) { %>
+                        <form action="/hikingTrails/<%= hikingTrail._id %>/reviews/<%= review._id %>?_method=DELETE"
+                              method="POST">
+                            <button class="btn btn-small btn-danger">Delete</button>
+                        </form>
+                    <% } %>
+                </div>
+            </div>
+        <% } %>
     </div>
 </div>

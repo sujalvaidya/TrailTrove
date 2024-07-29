@@ -1,24 +1,38 @@
 <% layout('layouts/boilerplate') %>
+<div id='cluster-map'></div>
 <h1>All Hiking Trails</h1>
 <div>
     <a href="/hikingTrails/new">Add Hiking Trail</a>
 </div>
 <% for (let hikingTrail of hikingTrails) { %>
-<div class="card mb-3">
-    <div class="row">
-        <div class="col-md-4">
-            <img src="<%= hikingTrail.image %>" alt="" class="img-fluid">
-        </div>
-        <div class="col-md-8">
-            <div class="card-body">
-                <h5 class="card-title"><%= hikingTrail.title %></h5>
-                <p class="card-text"><%= hikingTrail.description %></p>
-                <p class="card-text">
-                    <small class="text-body-secondary"><%= hikingTrail.location %></small>
-                </p>
-                <a href="/hikingTrails/<%= hikingTrail._id %>" class="btn btn-primary">View <%= hikingTrail.title %></a>
+    <div class="card mb-3">
+        <div class="row">
+            <div class="col-md-4">
+                <% if(hikingTrail.images.length) { %>
+                    <img src="<%= hikingTrail.images[0].url %>" alt="" class="img-fluid" crossorigin="anonymous">
+                <% } else{ %>
+                    <img src="https://res.cloudinary.com/dnipaqldf/image/upload/v1722163959/TrailTrove/qek9q8dtlqnuqe2vrhhd.jpg"
+                         alt="" class="img-fluid" crossorigin="anonymous">
+                <% } %>
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="card-title"><%= hikingTrail.title %></h5>
+                    <p class="card-text"><%= hikingTrail.description %></p>
+                    <p class="card-text">
+                        <small class="text-body-secondary"><%= hikingTrail.location %></small>
+                    </p>
+                    <a href="/hikingTrails/<%= hikingTrail._id %>"
+                       class="btn btn-primary">View <%= hikingTrail.title %></a>
+                </div>
             </div>
         </div>
     </div>
-</div>
 <% } %>
+
+<script>
+    const mapToken = '<%- process.env.MAPBOX_TOKEN %>'
+    const hikingTrails = {features: JSON.parse('<%- JSON.stringify(hikingTrails) %>')};
+</script>
+
+<script src="/javascripts/clusterMap.js"></script>

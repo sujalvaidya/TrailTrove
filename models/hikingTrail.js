@@ -2,9 +2,31 @@ const mongoose = require('mongoose');
 const Review = require('./review');
 const Schema = mongoose.Schema;
 
+const ImageSchema = new Schema({
+    url: String,
+    filename: String
+});
+
+ImageSchema.virtual('thumbnail').get(function () {
+    return this.url.replace('/upload', '/upload/w_200')
+});
+
+const opts = {toJSON: {virtuals: true}}
+
 const HikingTrailSchema = new Schema({
     title: String,
-    image: String,
+    images: [ImageSchema],
+    geometry: {
+        type: {
+            type: String,
+            enum: ['Point'],
+            required: true
+        },
+        coordinates: {
+            type: [Number],
+            required: true
+        }
+    },
     price: Number,
     description: String,
     location: String,
@@ -18,12 +40,17 @@ const HikingTrailSchema = new Schema({
             ref: 'Review',
         }
     ]
+}, opts);
+// });
+
+HikingTrailSchema.virtual('properties.popupMarkup').get(function () {
+    return `<strong><a href=/hikingTrails/${this._id}>${this.title}</a></strong><p>${this.description.substring(0, 20)}...</p>`
 });
 
-HikingTrailSchema.post('findOneAndDelete', async function (doc){
-    if (doc){
+HikingTrailSchema.post('findOneAndDelete', async function (doc) {
+    if (doc) {
         await Review.deleteMany({
-            _id:{
+            _id: {
                 $in: doc.reviews,
             }
         })
